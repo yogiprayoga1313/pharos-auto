@@ -21,20 +21,20 @@ const pharosTestnet = {
   },
 };
 
-// Configuration
+// Load private key dari file account.json
+const accounts = JSON.parse(fs.readFileSync('./account.json', 'utf8'));
+
+// Configuration - automatically set based on number of accounts
 const CONFIG = {
-    mode: 'multi', // Changed from 'single' to 'multi'
+    mode: accounts.length > 1 ? 'multi' : 'single', // Auto-detect mode based on account count
     selectedAccount: 0,
-    maxConcurrent: 2, // Set to 2 since we have 2 accounts
+    maxConcurrent: Math.min(3, accounts.length), // Maximum concurrent accounts, but not more than total accounts
     delayBetweenAccounts: 10000,
     amountPerSwap: '0.002',
     numberOfSwaps: 20,
     minDelay: 5000,
     maxDelay: 15000
 };
-
-// Load private key dari file account.json
-const accounts = JSON.parse(fs.readFileSync('./account.json', 'utf8'));
 
 // Setup client Viem
 const RPC_URL = process.env.RPC_URL || 'https://api.zan.top/node/v1/pharos/testnet/1761472bf26745488907477d23719fb5';
@@ -317,6 +317,10 @@ async function main() {
   console.log('Starting PHRS wrap bot...');
   console.log(`Will perform ${CONFIG.numberOfSwaps} wraps of ${CONFIG.amountPerSwap} PHRS each`);
   console.log(`Delay between wraps: ${CONFIG.minDelay/1000}-${CONFIG.maxDelay/1000} seconds`);
+  console.log(`Detected ${accounts.length} wallet(s), using ${CONFIG.mode} mode`);
+  if (CONFIG.mode === 'multi') {
+    console.log(`Running with max ${CONFIG.maxConcurrent} concurrent wallets`);
+  }
   
   try {
     let results;

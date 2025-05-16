@@ -15,16 +15,16 @@ const NUMBER_OF_TRANSACTIONS = 91;
 const MIN_DELAY = 5000;  // Minimum 5 seconds
 const MAX_DELAY = 15000; // Maximum 15 seconds
 
-// Configuration
-const CONFIG = {
-    mode: 'single', // 'single' or 'multi'
-    selectedAccount: 0, // Index of account to use in single mode
-    maxConcurrent: 3, // Maximum number of concurrent accounts in multi mode
-    delayBetweenAccounts: 10000 // Delay between starting new accounts in multi mode
-};
-
 // Read wallet credentials
 const accounts = JSON.parse(fs.readFileSync('./account.json', 'utf8'));
+
+// Configuration - automatically set based on number of accounts
+const CONFIG = {
+    mode: accounts.length > 1 ? 'multi' : 'single', // Auto-detect mode based on account count
+    selectedAccount: 0, // Index of account to use in single mode
+    maxConcurrent: Math.min(3, accounts.length), // Maximum concurrent accounts, but not more than total accounts
+    delayBetweenAccounts: 10000 // Delay between starting new accounts in multi mode
+};
 
 // Provider setup
 const provider = new ethers.JsonRpcProvider(RPC_URL);
@@ -277,6 +277,10 @@ async function main() {
     console.log(`Using referral code: ${REFERRAL_CODE}`);
     console.log(`Will send ${NUMBER_OF_TRANSACTIONS} transactions of ${AMOUNT_TO_SEND} PHRS each`);
     console.log(`Delay between transactions: ${MIN_DELAY/1000}-${MAX_DELAY/1000} seconds`);
+    console.log(`Detected ${accounts.length} wallet(s), using ${CONFIG.mode} mode`);
+    if (CONFIG.mode === 'multi') {
+        console.log(`Running with max ${CONFIG.maxConcurrent} concurrent wallets`);
+    }
     
     try {
         let results;
