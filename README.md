@@ -1,5 +1,7 @@
 # Pharos Network Auto Referral Bot
 
+> 💝 If you find this tool helpful, you can support me by sending tips to: `0xda6663106f2c33f8d0e43264a476b97e83bb746c`
+
 A Node.js script for automating the referral process on Pharos Network testnet.
 
 ## Features
